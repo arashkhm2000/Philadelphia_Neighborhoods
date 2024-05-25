@@ -497,3 +497,16 @@ function initMap() {
 
   new NeighborhoodDiscovery(CONFIGURATION);
 }
+
+function addGoogleMapsScript(apiKey) {
+  const script = document.createElement('script');
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap&libraries=places,geometry`;
+  script.async = true;
+  script.defer = true;
+  document.head.appendChild(script);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const apiKey = 'YOUR_GOOGLE_MAPS_API_KEY';
+  addGoogleMapsScript(apiKey);
+});
