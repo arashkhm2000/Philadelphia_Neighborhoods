@@ -377,7 +377,7 @@ function NeighborhoodDiscovery(configuration) {
           'name', 'types', 'geometry.location', 'photo', 'rating', 'user_ratings_total', 'price_level'
         ], (fetchedPlace) => {
           count--;
-          if (count === 0) {
+          if (count === 0)
             renderPlaceResults(nextPlaces, widget.nextPlaceIndex);
             widget.nextPlaceIndex += n;
             widget.updateBounds(widget.places.slice(0, widget.nextPlaceIndex));
@@ -478,7 +478,7 @@ function NeighborhoodDiscovery(configuration) {
 }
 
 function initMap() {
-  const apiKey = 'API_KEY_PLACEHOLDER';  // Replace this placeholder with actual key using a build process or environment variable during deployment
+  const apiKey = 'YOUR_GOOGLE_MAPS_API_KEY';  // Replace this placeholder with actual key
 
   const CONFIGURATION = {
     capabilities: { search: true, distances: false, directions: false, contacts: true, atmospheres: true, thumbnails: true },
@@ -499,7 +499,6 @@ function initMap() {
 
   new NeighborhoodDiscovery(CONFIGURATION);
 }
-
 
 function addGoogleMapsScript(apiKey) {
   const script = document.createElement('script');
