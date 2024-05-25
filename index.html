@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Neighborhood Discovery</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/handlebars/4.7.7/handlebars.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <style>
+    /* Your existing styles here */
+  </style>
+  <script>
+    const CONFIGURATION = {
+      "capabilities": {"search":true,"distances":false,"directions":false,"contacts":true,"atmospheres":true,"thumbnails":true},
+      "mapRadius": 1000,
+      "mapOptions": {
+        "center": {"lat":39.9526,"lng":-75.1652}, // Centered on Philadelphia
+        "fullscreenControl": true,
+        "mapTypeControl": true,
+        "streetViewControl": false,
+        "zoom": 12, // Adjust the zoom level to show a wider area
+        "zoomControl": true,
+        "maxZoom": 20,
+        "minZoom": 3, // Allow zooming out more
+        "mapId": ""
+      },
+      "mapsApiKey": "YOUR_API_KEY_HERE"
+    };
+
+    function initMap() {
+      new NeighborhoodDiscovery(CONFIGURATION);
+    }
+
+    function drawNeighborhoodCircle(map, name, lat, lng, radius) {
+      const neighborhoodCircle = new google.maps.Circle({
+        strokeColor: "#FF0000",
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: "#FF0000",
+        fillOpacity: 0.35,
+        map: map,
+        center: { lat: lat, lng: lng },
+        radius: radius,
+      });
+
+      const infoWindow = new google.maps.InfoWindow({
+        content: name,
+        position: { lat: lat, lng: lng },
+      });
+
+      neighborhoodCircle.addListener("mouseover", () => {
+        infoWindow.open(map);
+      });
+
+      neighborhoodCircle.addListener("mouseout", () => {
+        infoWindow.close();
+      });
+    }
+
+    function initializeMap() {
+      const neighborhoods = [
+        { name: "University City", lat: 39.9526, lng: -75.1932, radius: 1000 },
+        { name: "Old City", lat: 39.9523, lng: -75.1427, radius: 500 },
+        { name: "Fishtown", lat: 39.9715, lng: -75.1309, radius: 800 },
+        { name: "Northern Liberties", lat: 39.9649, lng: -75.1431, radius: 700 },
+        { name: "Logan Square", lat: 39.9597, lng: -75.1714, radius: 600 },
+        { name: "Rittenhouse Square", lat: 39.9487, lng: -75.1710, radius: 500 },
+        { name: "Graduate Hospital", lat: 39.9415, lng: -75.1780, radius: 700 },
+        { name: "Fairmount", lat: 39.9656, lng: -75.1740, radius: 600 },
+        { name: "Spring Garden", lat: 39.9639, lng: -75.1603, radius: 600 },
+        { name: "Washington Square West", lat: 39.9471, lng: -75.1582, radius: 600 },
+        { name: "Society Hill", lat: 39.9447, lng: -75.1492, radius: 700 },
+        { name: "Queen Village", lat: 39.9376, lng: -75.1484, radius: 800 },
+        { name: "Bella Vista", lat: 39.9381, lng: -75.1584, radius: 700 },
+        { name: "Callowhill", lat: 39.9607, lng: -75.1573, radius: 700 },
+        { name: "Powelton Village", lat: 39.9571, lng: -75.1925, radius: 700 },
+        { name: "Spruce Hill and Cedar Park", lat: 39.9534, lng: -75.2131, radius: 800 },
+        { name: "East Passyunk", lat: 39.9333, lng: -75.1646, radius: 600 },
+        { name: "Pennsport", lat: 39.9284, lng: -75.1467, radius: 700 },
+      ];
+
+      neighborhoods.forEach((neighborhood) => {
+        drawNeighborhoodCircle(widget.map, neighborhood.name, neighborhood.lat, neighborhood.lng, neighborhood.radius);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+      fetch('config.json')
+        .then(response => response.json())
+        .then(config => {
+          CONFIGURATION.mapsApiKey = config.mapsApiKey;
+          initMap();
+        })
+        .catch(error => console.error('Error fetching the config:', error));
+    });
+  </script>
+  <script id="nd-place-results-tmpl" type="text/x-handlebars-template">
+    {{#each places}}
+      <li class="place-result">
+        <div class="text">
+          <button class="name">{{name}}</button>
+          <div class="info">
+            {{#if rating}}
+              <span>{{rating}}</span>
+              <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star/v15/24px.svg" alt="rating" class="star-icon"/>
+            {{/if}}
+            {{#if numReviews}}
+              <span>&nbsp;({{numReviews}})</span>
+            {{/if}}
+            {{#if priceLevel}}
+              &#183;&nbsp;<span>{{#each dollarSigns}}${{/each}}&nbsp;</span>
+            {{/if}}
+          </div>
+          <div class="info">{{type}}</div>
+        </div>
+        <button class="photo" style="background-image:url({{photos.0.urlSmall}})" aria-label="show photo in viewer"></button>
+      </li>
+    {{/each}}
+  </script>
+  <script id="nd-place-details-tmpl" type="text/x-handlebars-template">
+    <div class="navbar">
+      <button class="back-button">
+        <img class="icon" src="https://fonts.gstatic.com/s/i/googlematerialicons/arrow_back/v11/24px.svg" alt="back"/>
+        Back
+      </button>
+    </div>
+    <header>
+      <h2>{{name}}</h2>
+      <div class="info">
+        {{#if rating}}
+          <span class="star-rating-numeric">{{rating}}</span>
+          <span>
+            {{#each fullStarIcons}}
+              <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star/v15/24px.svg" alt="full star" class="star-icon"/>
+            {{/each}}
+            {{#each halfStarIcons}}
+              <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star_half/v17/24px.svg" alt="half star" class="star-icon"/>
+            {{/each}}
+            {{#each emptyStarIcons}}
+              <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star_outline/v9/24px.svg" alt="empty star" class="star-icon"/>
+            {{/each}}
+          </span>
+        {{/if}}
+        {{#if numReviews}}
+          <a href="{{url}}" target="_blank">{{numReviews}} reviews</a>
+        {{else}}
+          <a href="{{url}}" target="_blank">See on Google Maps</a>
+        {{/if}}
+        {{#if priceLevel}}
+          &#183;
+          <span class="price-dollars">
+            {{#each dollarSigns}}${{/each}}
+          </span>
+        {{/if}}
+      </div>
+      {{#if type}}
+        <div class="info">{{type}}</div>
+      {{/if}}
+    </header>
+    <div class="section">
+      {{#if address}}
+        <div class="contact">
+          <img src="https://fonts.gstatic.com/s/i/googlematerialicons/place/v10/24px.svg" alt="Address" class="icon"/>
+          <div class="text">
+            {{address}}
+          </div>
+        </div>
+      {{/if}}
+      {{#if website}}
+        <div class="contact">
+          <img src="https://fonts.gstatic.com/s/i/googlematerialicons/public/v10/24px.svg" alt="Website" class="icon"/>
+          <div class="text">
+            <a href="{{website}}" target="_blank">{{websiteDomain}}</a>
+          </div>
+        </div>
+      {{/if}}
+      {{#if phoneNumber}}
+        <div class="contact">
+          <img src="https://fonts.gstatic.com/s/i/googlematerialicons/phone/v10/24px.svg" alt="Phone number" class="icon"/>
+          <div class="text">
+            {{phoneNumber}}
+          </div>
+        </div>
+      {{/if}}
+      {{#if openingHours}}
+        <div class="contact">
+          <img src="https://fonts.gstatic.com/s/i/googlematerialicons/schedule/v12/24px.svg" alt="Opening hours" class="icon"/>
+          <div class="text">
+            {{#each openingHours}}
+              <div>
+                <span class="weekday">{{days}}</span>
+                <span class="hours">{{hours}}</span>
+              </div>
+            {{/each}}
+          </div>
+        </div>
+      {{/if}}
+    </div>
+    {{#if photos}}
+      <div class="photos section">
+        {{#each photos}}
+          <button class="photo" style="background-image:url({{urlSmall}})" aria-label="show photo in viewer"></button>
+        {{/each}}
+      </div>
+    {{/if}}
+    {{#if reviews}}
+      <div class="reviews section">
+        <p class="attribution">Reviews by Google users</p>
+        {{#each reviews}}
+          <div class="review">
+            <a class="reviewer-identity" href="{{author_url}}" target="_blank">
+              <div class="reviewer-avatar" style="background-image:url({{profile_photo_url}})"></div>
+              <div class="reviewer-name">{{author_name}}</div>
+            </a>
+            <div class="rating info">
+              <span>
+                {{#each fullStarIcons}}
+                  <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star/v15/24px.svg" alt="full star" class="star-icon"/>
+                {{/each}}
+                {{#each halfStarIcons}}
+                  <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star_half/v17/24px.svg" alt="half star" class="star-icon"/>
+                {{/each}}
+                {{#each emptyStarIcons}}
+                  <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star_outline/v9/24px.svg" alt="empty star" class="star-icon"/>
+                {{/each}}
+              </span>
+              <span class="review-time">{{relative_time_description}}</span>
+            </div>
+            <div class="info">{{text}}</div>
+          </div>
+        {{/each}}
+      </div>
+    {{/if}}
+    {{#if html_attributions}}
+      <div class="section">
+        {{#each html_attributions}}
+          <p class="attribution">{{{this}}}</p>
+        {{/each}}
+      </div>
+    {{/if}}
+  </script>
+</head>
+<body>
+  <div class="neighborhood-discovery">
+    <div class="places-panel panel no-scroll">
+      <header class="navbar">
+        <div class="search-input">
+          <input class="place-search-input" placeholder="Search nearby places">
+          <button class="place-search-button">
+            <img src="https://fonts.gstatic.com/s/i/googlematerialicons/search/v11/24px.svg" alt="search"/>
+          </button>
+        </div>
+      </header>
+      <div class="results">
+        <ul class="place-results-list"></ul>
+      </div>
+      <button class="show-more-button sticky">
+        <span>Show More</span>
+        <img class="right" src="https://fonts.gstatic.com/s/i/googlematerialicons/expand_more/v11/24px.svg" alt="expand"/>
+      </button>
+    </div>
+    <div class="details-panel panel"></div>
+    <div id="map" class="map"></div>
+    <div class="photo-modal">
+      <img alt="place photo"/>
+      <div>
+        <button class="back-button">
+          <img class="icon" src="https://fonts.gstatic.com/s/i/googlematerialicons/arrow_back/v11/24px.svg" alt="back"/>
+        </button>
+        <div class="photo-text">
+          <div class="photo-place"></div>
+          <div class="photo-attrs">Photo by <span></span></div>
+        </div>
+      </div>
+    </div>
+    <svg class="marker-pin" xmlns="http://www.w3.org/2000/svg" width="26" height="38" fill="none">
+      <path d="M13 0C5.817 0 0 5.93 0 13.267c0 7.862 5.59 10.81 9.555 17.624C12.09 35.248 11.342 38 13 38c1.723 0 .975-2.817 3.445-7.043C20.085 24.503 26 21.162 26 13.267 26 5.93 20.183 0 13 0Z"/>
+    </svg>
+  </div>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&callback=initMap&libraries=places,geometry&solution_channel=GMP_QB_neighborhooddiscovery_v2_cADEF" async defer></script>
+</body>
+</html>

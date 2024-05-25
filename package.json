@@ -1,0 +1,18 @@
+{
+  "name": "philadelphia_neighborhoods",
+  "version": "1.0.0",
+  "description": "A project to display Philadelphia neighborhoods using Google Maps.",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'Building the project...'",
+    "start": "echo 'Starting the project...'"
+  },
+  "dependencies": {
+    "handlebars": "^4.7.7"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.5"
+  },
+  "author": "",
+  "license": "ISC"
+}
