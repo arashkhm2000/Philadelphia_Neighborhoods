@@ -1,576 +1,607 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Neighborhood Discovery</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/handlebars/4.7.7/handlebars.min.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-    <style>
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
+<head>
+  <title>Neighborhood Discovery</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/handlebars/4.7.7/handlebars.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
 
-      .neighborhood-discovery {
-        box-sizing: border-box;
-        font-family: "Roboto", sans-serif;
-        height: 100%;
-        position: relative;
-        width: 100%;
-      }
+    .neighborhood-discovery {
+      box-sizing: border-box;
+      font-family: "Roboto", sans-serif;
+      height: 100%;
+      position: relative;
+      width: 100%;
+    }
 
-      .neighborhood-discovery a {
-        color: #4285f4;
-        text-decoration: none;
-      }
+    .neighborhood-discovery a {
+      color: #4285f4;
+      text-decoration: none;
+    }
 
-      .neighborhood-discovery button {
-        background: none;
-        border: none;
-        color: inherit;
-        cursor: pointer;
-        font: inherit;
-        font-size: inherit;
-        padding: 0;
-      }
+    .neighborhood-discovery button {
+      background: none;
+      border: none;
+      color: inherit;
+      cursor: pointer;
+      font: inherit;
+      font-size: inherit;
+      padding: 0;
+    }
 
-      .neighborhood-discovery .info {
-        color: #555;
-        font-size: 0.9em;
-        margin-top: 0.3em;
-      }
+    .neighborhood-discovery .info {
+      color: #555;
+      font-size: 0.9em;
+      margin-top: 0.3em;
+    }
 
+    .neighborhood-discovery .panel {
+      background: white;
+      bottom: 0;
+      box-sizing: border-box;
+      left: 0;
+      overflow-y: auto;
+      position: absolute;
+      top: 0;
+      width: 20em;
+    }
+
+    .neighborhood-discovery .panel.no-scroll {
+      overflow-y: hidden;
+    }
+
+    .neighborhood-discovery .photo {
+      background-color: #dadce0;
+      background-position: center;
+      background-size: cover;
+      border-radius: 0.3em;
+      cursor: pointer;
+    }
+
+    .neighborhood-discovery .navbar {
+      background: white;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .neighborhood-discovery .right {
+      float: right;
+    }
+
+    .neighborhood-discovery .star-icon {
+      filter: invert(88%) sepia(60%) saturate(2073%) hue-rotate(318deg) brightness(93%) contrast(104%);
+      height: 1.2em;
+      margin-right: -0.3em;
+      margin-top: -0.08em;
+      vertical-align: top;
+      width: 1.2em;
+    }
+
+    .neighborhood-discovery .star-icon:last-child {
+      margin-right: 0.2em;
+    }
+
+    .neighborhood-discovery .map {
+      bottom: 0;
+      left: 20em;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+
+    @media only screen and (max-width: 640px) {
       .neighborhood-discovery .panel {
-        background: white;
-        bottom: 0;
-        box-sizing: border-box;
-        left: 0;
-        overflow-y: auto;
-        position: absolute;
-        top: 0;
-        width: 20em;
-      }
-
-      .neighborhood-discovery .panel.no-scroll {
-        overflow-y: hidden;
-      }
-
-      .neighborhood-discovery .photo {
-        background-color: #dadce0;
-        background-position: center;
-        background-size: cover;
-        border-radius: 0.3em;
-        cursor: pointer;
-      }
-
-      .neighborhood-discovery .navbar {
-        background: white;
-        position: sticky;
-        top: 0;
-        z-index: 2;
-      }
-
-      .neighborhood-discovery .right {
-        float: right;
-      }
-
-      .neighborhood-discovery .star-icon {
-        filter: invert(88%) sepia(60%) saturate(2073%) hue-rotate(318deg) brightness(93%) contrast(104%);
-        height: 1.2em;
-        margin-right: -0.3em;
-        margin-top: -0.08em;
-        vertical-align: top;
-        width: 1.2em;
-      }
-
-      .neighborhood-discovery .star-icon:last-child {
-        margin-right: 0.2em;
+        right: 0;
+        top: 50%;
+        width: unset;
       }
 
       .neighborhood-discovery .map {
-        bottom: 0;
-        left: 20em;
-        position: absolute;
-        right: 0;
-        top: 0;
-      }
-
-      @media only screen and (max-width: 640px) {
-        .neighborhood-discovery .panel {
-          right: 0;
-          top: 50%;
-          width: unset;
-        }
-
-        .neighborhood-discovery .map {
-          bottom: 50%;
-          left: 0;
-        }
-      }
-
-      /* --------------------------- PLACES PANEL --------------------------- */
-
-      .neighborhood-discovery .places-panel {
-        box-shadow: 0 0 10px rgb(60 64 67 / 28%);
-        z-index: 1;
-      }
-
-      .neighborhood-discovery .places-panel header {
-        padding: 0.5em;
-      }
-
-      .neighborhood-discovery .search-input input {
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        border-radius: 0.3em;
-        box-sizing: border-box;
-        font-size: 1em;
-        height: 2.2em;
-        padding: 0 2.5em 0 1em;
-        width: 100%;
-      }
-
-      .neighborhood-discovery .search-input button {
-        position: absolute;
-        right: 0.8em;
-        top: 0.8em;
-      }
-
-      .neighborhood-discovery .show-more-button {
-        bottom: 0.5em;
-        display: none;
-        left: 28%;
-        line-height: 1.5em;
-        padding: 0.6em;
-        position: relative;
-        width: 44%;
-      }
-
-      .neighborhood-discovery .show-more-button.sticky {
-        background: white;
-        border-radius: 1.5em;
-        box-shadow: 0 4px 10px rgb(60 64 67 / 28%);
-        position: sticky;
-        z-index: 2;
-      }
-
-      .neighborhood-discovery .show-more-button:disabled {
-        opacity: 0.5;
-      }
-
-      .neighborhood-discovery .place-results-list {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
-
-      .neighborhood-discovery .place-result {
-        border-top: 1px solid rgba(0, 0, 0, 0.12);
-        cursor: pointer;
-        display: flex;
-        padding: 0.8em;
-      }
-
-      .neighborhood-discovery .place-result .text {
-        flex-grow: 1;
-      }
-
-      .neighborhood-discovery .place-result .name {
-        font-size: 1em;
-        font-weight: 500;
-        text-align: left;
-      }
-
-      .neighborhood-discovery .place-result .photo {
-        flex: 0 0 4em;
-        height: 4em;
-        margin-left: 0.8em;
-      }
-
-      /* -------------------------- DETAILS PANEL --------------------------- */
-
-      .neighborhood-discovery .details-panel {
-        display: none;
-        z-index: 20;
-      }
-
-      .neighborhood-discovery .details-panel .back-button {
-        color: #4285f4;
-        padding: 0.9em;
-      }
-
-      .neighborhood-discovery .details-panel .back-button .icon {
-        /* Match link color #4285f4 */
-        filter: invert(47%) sepia(71%) saturate(2372%) hue-rotate(200deg) brightness(97%) contrast(98%);
-        height: 1.2em;
-        width: 1.2em;
-        vertical-align: bottom;
-      }
-
-      .neighborhood-discovery .details-panel header {
-        padding: 0.9em;
-      }
-
-      .neighborhood-discovery .details-panel h2 {
-        font-size: 1.4em;
-        font-weight: 400;
-        margin: 0;
-      }
-
-      .neighborhood-discovery .details-panel .section {
-        border-top: 1px solid rgba(0, 0, 0, 0.12);
-        padding: 0.9em;
-      }
-
-      .neighborhood-discovery .details-panel .contact {
-        align-items: center;
-        display: flex;
-        font-size: 0.9em;
-        margin: 0.8em 0;
-      }
-
-      .neighborhood-discovery .details-panel .contact .icon {
-        width: 1.5em;
-        height: 1.5em;
-      }
-
-      .neighborhood-discovery .details-panel .contact .text {
-        margin-left: 1em;
-      }
-
-      .neighborhood-discovery .details-panel .contact .weekday {
-        display: inline-block;
-        width: 5em;
-      }
-
-      .neighborhood-discovery .details-panel .photos {
-        text-align: center;
-      }
-
-      .neighborhood-discovery .details-panel .photo {
-        display: inline-block;
-        height: 5.5em;
-        width: 5.5em;
-      }
-
-      .neighborhood-discovery .details-panel .review {
-        margin-top: 1.2em;
-      }
-
-      .neighborhood-discovery .details-panel .review .reviewer-avatar {
-        background-repeat: no-repeat;
-        background-size: cover;
-        float: left;
-        height: 1.8em;
-        margin-right: 0.8em;
-        width: 1.8em;
-      }
-
-      .neighborhood-discovery .details-panel .review .reviewer-name {
-        color: #202124;
-        font-weight: 500;
-        line-height: 1.8em;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .neighborhood-discovery .details-panel .review .rating {
-        margin: 0.5em 0;
-      }
-
-      .neighborhood-discovery .details-panel .attribution {
-        color: #777;
-        margin: 0;
-        font-size: 0.8em;
-        font-style: italic;
-      }
-
-      /* --------------------------- PHOTO MODAL ---------------------------- */
-
-      .neighborhood-discovery .photo-modal {
-        background: rgba(0, 0, 0, 0.8);
-        display: none;
-        height: 100%;
-        position: fixed;
-        width: 100%;
-        z-index: 100;
-      }
-
-      .neighborhood-discovery .photo-modal>img {
-        bottom: 0;
+        bottom: 50%;
         left: 0;
-        margin: auto;
-        max-height: 100%;
-        max-width: 100%;
-        position: absolute;
-        right: 0;
-        top: 0;
       }
+    }
 
-      .neighborhood-discovery .photo-modal>div {
-        border-radius: 0.4em;
-        color: white;
-        background: rgba(0, 0, 0, 0.6);
-        margin: 1em;
-        padding: 0.9em;
-        position: absolute;
-      }
+    /* --------------------------- PLACES PANEL --------------------------- */
 
-      .neighborhood-discovery .photo-modal .back-button .icon {
-        filter: brightness(0) invert(1);
-        margin: 0.4em 0.6em 0 0;
-      }
+    .neighborhood-discovery .places-panel {
+      box-shadow: 0 0 10px rgb(60 64 67 / 28%);
+      z-index: 1;
+    }
 
-      .neighborhood-discovery .photo-modal .photo-text {
-        float: right;
-      }
+    .neighborhood-discovery .places-panel header {
+      padding: 0.5em;
+    }
 
-      .neighborhood-discovery .photo-modal .photo-attrs {
-        font-size: 0.8em;
-        margin-top: 0.3em;
-      }
+    .neighborhood-discovery .search-input input {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      border-radius: 0.3em;
+      box-sizing: border-box;
+      font-size: 1em;
+      height: 2.2em;
+      padding: 0 2.5em 0 1em;
+      width: 100%;
+    }
 
-      /* Additional CSS for map height */
-      #map {
-        height: 100vh;
-        width: 100%;
-      }
-    </style>
-    <script>
-      const CONFIGURATION = {
-        "capabilities": {"search":true,"distances":false,"directions":false,"contacts":true,"atmospheres":true,"thumbnails":true},
-        "mapRadius": 1000,
-        "mapOptions": {
-          "center": {"lat":39.9526,"lng":-75.1652}, // Centered on Philadelphia
-          "fullscreenControl": true,
-          "mapTypeControl": true,
-          "streetViewControl": false,
-          "zoom": 12, // Adjust the zoom level to show a wider area
-          "zoomControl": true,
-          "maxZoom": 20,
-          "minZoom": 3, // Allow zooming out more
-          "mapId": ""
-        },
-        "mapsApiKey": "API_KEY_PLACEHOLDER"
-      };
+    .neighborhood-discovery .search-input button {
+      position: absolute;
+      right: 0.8em;
+      top: 0.8em;
+    }
 
-      function initMap() {
-        new NeighborhoodDiscovery(CONFIGURATION);
-      }
+    .neighborhood-discovery .show-more-button {
+      bottom: 0.5em;
+      display: none;
+      left: 28%;
+      line-height: 1.5em;
+      padding: 0.6em;
+      position: relative;
+      width: 44%;
+    }
 
-      // Add this function within your JavaScript
-      function drawNeighborhoodCircle(map, name, lat, lng, radius) {
-        const neighborhoodCircle = new google.maps.Circle({
-          strokeColor: "#FF0000",
-          strokeOpacity: 0.8,
-          strokeWeight: 2,
-          fillColor: "#FF0000",
-          fillOpacity: 0.35,
-          map: map,
-          center: { lat: lat, lng: lng },
-          radius: radius,
-        });
+    .neighborhood-discovery .show-more-button.sticky {
+      background: white;
+      border-radius: 1.5em;
+      box-shadow: 0 4px 10px rgb(60 64 67 / 28%);
+      position: sticky;
+      z-index: 2;
+    }
 
-        const infoWindow = new google.maps.InfoWindow({
-          content: name,
-          position: { lat: lat, lng: lng },
-        });
+    .neighborhood-discovery .show-more-button:disabled {
+      opacity: 0.5;
+    }
 
-        neighborhoodCircle.addListener("mouseover", () => {
-          infoWindow.open(map);
-        });
+    .neighborhood-discovery .place-results-list {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
 
-        neighborhoodCircle.addListener("mouseout", () => {
-          infoWindow.close();
-        });
-      }
+    .neighborhood-discovery .place-result {
+      border-top: 1px solid rgba(0, 0, 0, 0.12);
+      cursor: pointer;
+      display: flex;
+      padding: 0.8em;
+    }
 
-      // Call this function within initializeMap function
-      function initializeMap() {
-        const neighborhoods = [
-          { name: "University City", lat: 39.9526, lng: -75.1932, radius: 1000 },
-          { name: "Old City", lat: 39.9523, lng: -75.1427, radius: 500 },
-          { name: "Fishtown", lat: 39.9715, lng: -75.1309, radius: 800 },
-          { name: "Northern Liberties", lat: 39.9649, lng: -75.1431, radius: 700 },
-          { name: "Logan Square", lat: 39.9597, lng: -75.1714, radius: 600 },
-          { name: "Rittenhouse Square", lat: 39.9487, lng: -75.1710, radius: 500 },
-          { name: "Graduate Hospital", lat: 39.9415, lng: -75.1780, radius: 700 },
-          { name: "Fairmount", lat: 39.9656, lng: -75.1740, radius: 600 },
-          { name: "Spring Garden", lat: 39.9639, lng: -75.1603, radius: 600 },
-          { name: "Washington Square West", lat: 39.9471, lng: -75.1582, radius: 600 },
-          { name: "Society Hill", lat: 39.9447, lng: -75.1492, radius: 700 },
-          { name: "Queen Village", lat: 39.9376, lng: -75.1484, radius: 800 },
-          { name: "Bella Vista", lat: 39.9381, lng: -75.1584, radius: 700 },
-          { name: "Callowhill", lat: 39.9607, lng: -75.1573, radius: 700 },
-          { name: "Powelton Village", lat: 39.9571, lng: -75.1925, radius: 700 },
-          { name: "Spruce Hill and Cedar Park", lat: 39.9534, lng: -75.2131, radius: 800 },
-          { name: "East Passyunk", lat: 39.9333, lng: -75.1646, radius: 600 },
-          { name: "Pennsport", lat: 39.9284, lng: -75.1467, radius: 700 },
-        ];
+    .neighborhood-discovery .place-result .text {
+      flex-grow: 1;
+    }
 
-        neighborhoods.forEach((neighborhood) => {
-          drawNeighborhoodCircle(widget.map, neighborhood.name, neighborhood.lat, neighborhood.lng, neighborhood.radius);
-        });
-      }
-    </script>
-    <script id="nd-place-results-tmpl" type="text/x-handlebars-template">
-      {{#each places}}
-        <li class="place-result">
-          <div class="text">
-            <button class="name">{{name}}</button>
-            <div class="info">
-              {{#if rating}}
-                <span>{{rating}}</span>
-                <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star/v15/24px.svg" alt="rating" class="star-icon"/>
-              {{/if}}
-              {{#if numReviews}}
-                <span>&nbsp;({{numReviews}})</span>
-              {{/if}}
-              {{#if priceLevel}}
-                &#183;&nbsp;<span>{{#each dollarSigns}}${{/each}}&nbsp;</span>
-              {{/if}}
-            </div>
-            <div class="info">{{type}}</div>
+    .neighborhood-discovery .place-result .name {
+      font-size: 1em;
+      font-weight: 500;
+      text-align: left;
+    }
+
+    .neighborhood-discovery .place-result .photo {
+      flex: 0 0 4em;
+      height: 4em;
+      margin-left: 0.8em;
+    }
+
+    /* -------------------------- DETAILS PANEL --------------------------- */
+
+    .neighborhood-discovery .details-panel {
+      display: none;
+      z-index: 20;
+    }
+
+    .neighborhood-discovery .details-panel .back-button {
+      color: #4285f4;
+      padding: 0.9em;
+    }
+
+    .neighborhood-discovery .details-panel .back-button .icon {
+      /* Match link color #4285f4 */
+      filter: invert(47%) sepia(71%) saturate(2372%) hue-rotate(200deg) brightness(97%) contrast(98%);
+      height: 1.2em;
+      width: 1.2em;
+      vertical-align: bottom;
+    }
+
+    .neighborhood-discovery .details-panel header {
+      padding: 0.9em;
+    }
+
+    .neighborhood-discovery .details-panel h2 {
+      font-size: 1.4em;
+      font-weight: 400;
+      margin: 0;
+    }
+
+    .neighborhood-discovery .details-panel .section {
+      border-top: 1px solid rgba(0, 0, 0, 0.12);
+      padding: 0.9em;
+    }
+
+    .neighborhood-discovery .details-panel .contact {
+      align-items: center;
+      display: flex;
+      font-size: 0.9em;
+      margin: 0.8em 0;
+    }
+
+    .neighborhood-discovery .details-panel .contact .icon {
+      width: 1.5em;
+      height: 1.5em;
+    }
+
+    .neighborhood-discovery .details-panel .contact .text {
+      margin-left: 1em;
+    }
+
+    .neighborhood-discovery .details-panel .contact .weekday {
+      display: inline-block;
+      width: 5em;
+    }
+
+    .neighborhood-discovery .details-panel .photos {
+      text-align: center;
+    }
+
+    .neighborhood-discovery .details-panel .photo {
+      display: inline-block;
+      height: 5.5em;
+      width: 5.5em;
+    }
+
+    .neighborhood-discovery .details-panel .review {
+      margin-top: 1.2em;
+    }
+
+    .neighborhood-discovery .details-panel .review .reviewer-avatar {
+      background-repeat: no-repeat;
+      background-size: cover;
+      float: left;
+      height: 1.8em;
+      margin-right: 0.8em;
+      width: 1.8em;
+    }
+
+    .neighborhood-discovery .details-panel .review .reviewer-name {
+      color: #202124;
+      font-weight: 500;
+      line-height: 1.8em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .neighborhood-discovery .details-panel .review .rating {
+      margin: 0.5em 0;
+    }
+
+    .neighborhood-discovery .details-panel .attribution {
+      color: #777;
+      margin: 0;
+      font-size: 0.8em;
+      font-style: italic;
+    }
+
+    /* --------------------------- PHOTO MODAL ---------------------------- */
+
+    .neighborhood-discovery .photo-modal {
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      height: 100%;
+      position: fixed;
+      width: 100%;
+      z-index: 100;
+    }
+
+    .neighborhood-discovery .photo-modal>img {
+      bottom: 0;
+      left: 0;
+      margin: auto;
+      max-height: 100%;
+      max-width: 100%;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+
+    .neighborhood-discovery .photo-modal>div {
+      border-radius: 0.4em;
+      color: white;
+      background: rgba(0, 0, 0, 0.6);
+      margin: 1em;
+      padding: 0.9em;
+      position: absolute;
+    }
+
+    .neighborhood-discovery .photo-modal .back-button .icon {
+      filter: brightness(0) invert(1);
+      margin: 0.4em 0.6em 0 0;
+    }
+
+    .neighborhood-discovery .photo-modal .photo-text {
+      float: right;
+    }
+
+    .neighborhood-discovery .photo-modal .photo-attrs {
+      font-size: 0.8em;
+      margin-top: 0.3em;
+    }
+
+    /* Additional CSS for map height */
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+  <script>
+    const CONFIGURATION = {
+      "capabilities": {"search":true,"distances":false,"directions":false,"contacts":true,"atmospheres":true,"thumbnails":true},
+      "mapRadius": 1000,
+      "mapOptions": {
+        "center": {"lat":39.9526,"lng":-75.1652}, // Centered on Philadelphia
+        "fullscreenControl": true,
+        "mapTypeControl": true,
+        "streetViewControl": false,
+        "zoom": 12, // Adjust the zoom level to show a wider area
+        "zoomControl": true,
+        "maxZoom": 20,
+        "minZoom": 3, // Allow zooming out more
+        "mapId": ""
+      },
+      "mapsApiKey": "YOUR_API_KEY_HERE"
+    };
+
+    function initMap() {
+      new NeighborhoodDiscovery(CONFIGURATION);
+    }
+
+    // Add this function within your JavaScript
+    function drawNeighborhoodCircle(map, name, lat, lng, radius) {
+      const neighborhoodCircle = new google.maps.Circle({
+        strokeColor: "#FF0000",
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: "#FF0000",
+        fillOpacity: 0.35,
+        map: map,
+        center: { lat: lat, lng: lng },
+        radius: radius,
+      });
+
+      const infoWindow = new google.maps.InfoWindow({
+        content: name,
+        position: { lat: lat, lng: lng },
+      });
+
+      neighborhoodCircle.addListener("mouseover", () => {
+        infoWindow.open(map);
+      });
+
+      neighborhoodCircle.addListener("mouseout", () => {
+        infoWindow.close();
+      });
+    }
+
+    // Call this function within initializeMap function
+    function initializeMap() {
+      const neighborhoods = [
+        { name: "University City", lat: 39.9526, lng: -75.1932, radius: 1000 },
+        { name: "Old City", lat: 39.9523, lng: -75.1427, radius: 500 },
+        { name: "Fishtown", lat: 39.9715, lng: -75.1309, radius: 800 },
+        { name: "Northern Liberties", lat: 39.9649, lng: -75.1431, radius: 700 },
+        { name: "Logan Square", lat: 39.9597, lng: -75.1714, radius: 600 },
+        { name: "Rittenhouse Square", lat: 39.9487, lng: -75.1710, radius: 500 },
+        { name: "Graduate Hospital", lat: 39.9415, lng: -75.1780, radius: 700 },
+        { name: "Fairmount", lat: 39.9656, lng: -75.1740, radius: 600 },
+        { name: "Spring Garden", lat: 39.9639, lng: -75.1603, radius: 600 },
+        { name: "Washington Square West", lat: 39.9471, lng: -75.1582, radius: 600 },
+        { name: "Society Hill", lat: 39.9447, lng: -75.1492, radius: 700 },
+        { name: "Queen Village", lat: 39.9376, lng: -75.1484, radius: 800 },
+        { name: "Bella Vista", lat: 39.9381, lng: -75.1584, radius: 700 },
+        { name: "Callowhill", lat: 39.9607, lng: -75.1573, radius: 700 },
+        { name: "Powelton Village", lat: 39.9571, lng: -75.1925, radius: 700 },
+        { name: "Spruce Hill and Cedar Park", lat: 39.9534, lng: -75.2131, radius: 800 },
+        { name: "East Passyunk", lat: 39.9333, lng: -75.1646, radius: 600 },
+        { name: "Pennsport", lat: 39.9284, lng: -75.1467, radius: 700 },
+      ];
+
+      neighborhoods.forEach((neighborhood) => {
+        drawNeighborhoodCircle(widget.map, neighborhood.name, neighborhood.lat, neighborhood.lng, neighborhood.radius);
+      });
+    }
+  </script>
+  <script id="nd-place-results-tmpl" type="text/x-handlebars-template">
+    {{#each places}}
+      <li class="place-result">
+        <div class="text">
+          <button class="name">{{name}}</button>
+          <div class="info">
+            {{#if rating}}
+              <span>{{rating}}</span>
+              <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star/v15/24px.svg" alt="rating" class="star-icon"/>
+            {{/if}}
+            {{#if numReviews}}
+              <span>&nbsp;({{numReviews}})</span>
+            {{/if}}
+            {{#if priceLevel}}
+              &#183;&nbsp;<span>{{#each dollarSigns}}${{/each}}&nbsp;</span>
+            {{/if}}
           </div>
-          <button class="photo" style="background-image:url({{photos.0.urlSmall}})" aria-label="show photo in viewer"></button>
-        </li>
-      {{/each}}
-    </script>
-    <script id="nd-place-details-tmpl" type="text/x-handlebars-template">
-      <div class="navbar">
+          <div class="info">{{type}}</div>
+        </div>
+        <button class="photo" style="background-image:url({{photos.0.urlSmall}})" aria-label="show photo in viewer"></button>
+      </li>
+    {{/each}}
+  </script>
+  <script id="nd-place-details-tmpl" type="text/x-handlebars-template">
+    <div class="navbar">
+      <button class="back-button">
+        <img class="icon" src="https://fonts.gstatic.com/s/i/googlematerialicons/arrow_back/v11/24px.svg" alt="back"/>
+        Back
+      </button>
+    </div>
+    <header>
+      <h2>{{name}}</h2>
+      <div class="info">
+        {{#if rating}}
+          <span class="star-rating-numeric">{{rating}}</span>
+          <span>
+            {{#each fullStarIcons}}
+              <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star/v15/24px.svg" alt="full star" class="star-icon"/>
+            {{/each}}
+            {{#each halfStarIcons}}
+              <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star_half/v17/24px.svg" alt="half star" class="star-icon"/>
+            {{/each}}
+            {{#each emptyStarIcons}}
+              <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star_outline/v9/24px.svg" alt="empty star" class="star-icon"/>
+            {{/each}}
+          </span>
+        {{/if}}
+        {{#if numReviews}}
+          <a href="{{url}}" target="_blank">{{numReviews}} reviews</a>
+        {{else}}
+          <a href="{{url}}" target="_blank">See on Google Maps</a>
+        {{/if}}
+        {{#if priceLevel}}
+          &#183;
+          <span class="price-dollars">
+            {{#each dollarSigns}}${{/each}}
+          </span>
+        {{/if}}
+      </div>
+      {{#if type}}
+        <div class="info">{{type}}</div>
+      {{/if}}
+    </header>
+    <div class="section">
+      {{#if address}}
+        <div class="contact">
+          <img src="https://fonts.gstatic.com/s/i/googlematerialicons/place/v10/24px.svg" alt="Address" class="icon"/>
+          <div class="text">
+            {{address}}
+          </div>
+        </div>
+      {{/if}}
+      {{#if website}}
+        <div class="contact">
+          <img src="https://fonts.gstatic.com/s/i/googlematerialicons/public/v10/24px.svg" alt="Website" class="icon"/>
+          <div class="text">
+            <a href="{{website}}" target="_blank">{{websiteDomain}}</a>
+          </div>
+        </div>
+      {{/if}}
+      {{#if phoneNumber}}
+        <div class="contact">
+          <img src="https://fonts.gstatic.com/s/i/googlematerialicons/phone/v10/24px.svg" alt="Phone number" class="icon"/>
+          <div class="text">
+            {{phoneNumber}}
+          </div>
+        </div>
+      {{/if}}
+      {{#if openingHours}}
+        <div class="contact">
+          <img src="https://fonts.gstatic.com/s/i/googlematerialicons/schedule/v12/24px.svg" alt="Opening hours" class="icon"/>
+          <div class="text">
+            {{#each openingHours}}
+              <div>
+                <span class="weekday">{{days}}</span>
+                <span class="hours">{{hours}}</span>
+              </div>
+            {{/each}}
+          </div>
+        </div>
+      {{/if}}
+    </div>
+    {{#if photos}}
+      <div class="photos section">
+        {{#each photos}}
+          <button class="photo" style="background-image:url({{urlSmall}})" aria-label="show photo in viewer"></button>
+        {{/each}}
+      </div>
+    {{/if}}
+    {{#if reviews}}
+      <div class="reviews section">
+        <p class="attribution">Reviews by Google users</p>
+        {{#each reviews}}
+          <div class="review">
+            <a class="reviewer-identity" href="{{author_url}}" target="_blank">
+              <div class="reviewer-avatar" style="background-image:url({{profile_photo_url}})"></div>
+              <div class="reviewer-name">{{author_name}}</div>
+            </a>
+            <div class="rating info">
+              <span>
+                {{#each fullStarIcons}}
+                  <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star/v15/24px.svg" alt="full star" class="star-icon"/>
+                {{/each}}
+                {{#each halfStarIcons}}
+                  <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star_half/v17/24px.svg" alt="half star" class="star-icon"/>
+                {{/each}}
+                {{#each emptyStarIcons}}
+                  <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star_outline/v9/24px.svg" alt="empty star" class="star-icon"/>
+                {{/each}}
+              </span>
+              <span class="review-time">{{relative_time_description}}</span>
+            </div>
+            <div class="info">{{text}}</div>
+          </div>
+        {{/each}}
+      </div>
+    {{/if}}
+    {{#if html_attributions}}
+      <div class="section">
+        {{#each html_attributions}}
+          <p class="attribution">{{{this}}}</p>
+        {{/each}}
+      </div>
+    {{/if}}
+  </script>
+</head>
+<body>
+  <div class="neighborhood-discovery">
+    <div class="places-panel panel no-scroll">
+      <header class="navbar">
+        <div class="search-input">
+          <input class="place-search-input" placeholder="Search nearby places">
+          <button class="place-search-button">
+            <img src="https://fonts.gstatic.com/s/i/googlematerialicons/search/v11/24px.svg" alt="search"/>
+          </button>
+        </div>
+      </header>
+      <div class="results">
+        <ul class="place-results-list"></ul>
+      </div>
+      <button class="show-more-button sticky">
+        <span>Show More</span>
+        <img class="right" src="https://fonts.gstatic.com/s/i/googlematerialicons/expand_more/v11/24px.svg" alt="expand"/>
+      </button>
+    </div>
+    <div class="details-panel panel"></div>
+    <div id="map" class="map"></div>
+    <div class="photo-modal">
+      <img alt="place photo"/>
+      <div>
         <button class="back-button">
           <img class="icon" src="https://fonts.gstatic.com/s/i/googlematerialicons/arrow_back/v11/24px.svg" alt="back"/>
-          Back
         </button>
+        <div class="photo-text">
+          <div class="photo-place"></div>
+          <div class="photo-attrs">Photo by <span></span></div>
+        </div>
       </div>
-      <header>
-        <h2>{{name}}</h2>
-        <div class="info">
-          {{#if rating}}
-            <span class="star-rating-numeric">{{rating}}</span>
-            <span>
-              {{#each fullStarIcons}}
-                <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star/v15/24px.svg" alt="full star" class="star-icon"/>
-              {{/each}}
-              {{#each halfStarIcons}}
-                <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star_half/v17/24px.svg" alt="half star" class="star-icon"/>
-              {{/each}}
-              {{#each emptyStarIcons}}
-                <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star_outline/v9/24px.svg" alt="empty star" class="star-icon"/>
-              {{/each}}
-            </span>
-          {{/if}}
-          {{#if numReviews}}
-            <a href="{{url}}" target="_blank">{{numReviews}} reviews</a>
-          {{else}}
-            <a href="{{url}}" target="_blank">See on Google Maps</a>
-          {{/if}}
-          {{#if priceLevel}}
-            &#183;
-            <span class="price-dollars">
-              {{#each dollarSigns}}${{/each}}
-            </span>
-          {{/if}}
-        </div>
-        {{#if type}}
-          <div class="info">{{type}}</div>
-        {{/if}}
-      </header>
-      <div class="section">
-        {{#if address}}
-          <div class="contact">
-            <img src="https://fonts.gstatic.com/s/i/googlematerialicons/place/v10/24px.svg" alt="Address" class="icon"/>
-            <div class="text">
-              {{address}}
-            </div>
-          </div>
-        {{/if}}
-        {{#if website}}
-          <div class="contact">
-            <img src="https://fonts.gstatic.com/s/i/googlematerialicons/public/v10/24px.svg" alt="Website" class="icon"/>
-            <div class="text">
-              <a href="{{website}}" target="_blank">{{websiteDomain}}</a>
-            </div>
-          </div>
-        {{/if}}
-        {{#if phoneNumber}}
-          <div class="contact">
-            <img src="https://fonts.gstatic.com/s/i/googlematerialicons/phone/v10/24px.svg" alt="Phone number" class="icon"/>
-            <div class="text">
-              {{phoneNumber}}
-            </div>
-          </div>
-        {{/if}}
-        {{#if openingHours}}
-          <div class="contact">
-            <img src="https://fonts.gstatic.com/s/i/googlematerialicons/schedule/v12/24px.svg" alt="Opening hours" class="icon"/>
-            <div class="text">
-              {{#each openingHours}}
-                <div>
-                  <span class="weekday">{{days}}</span>
-                  <span class="hours">{{hours}}</span>
-                </div>
-              {{/each}}
-            </div>
-          </div>
-        {{/if}}
-      </div>
-      {{#if photos}}
-        <div class="photos section">
-          {{#each photos}}
-            <button class="photo" style="background-image:url({{urlSmall}})" aria-label="show photo in viewer"></button>
-          {{/each}}
-        </div>
-      {{/if}}
-      {{#if reviews}}
-        <div class="reviews section">
-          <p class="attribution">Reviews by Google users</p>
-          {{#each reviews}}
-            <div class="review">
-              <a class="reviewer-identity" href="{{author_url}}" target="_blank">
-                <div class="reviewer-avatar" style="background-image:url({{profile_photo_url}})"></div>
-                <div class="reviewer-name">{{author_name}}</div>
-              </a>
-              <div class="rating info">
-                <span>
-                  {{#each fullStarIcons}}
-                    <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star/v15/24px.svg" alt="full star" class="star-icon"/>
-                  {{/each}}
-                  {{#each halfStarIcons}}
-                    <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star_half/v17/24px.svg" alt="half star" class="star-icon"/>
-                  {{/each}}
-                  {{#each emptyStarIcons}}
-                    <img src="https://fonts.gstatic.com/s/i/googlematerialicons/star_outline/v9/24px.svg" alt="empty star" class="star-icon"/>
-                  {{/each}}
-                </span>
-                <span class="review-time">{{relative_time_description}}</span>
-              </div>
-              <div class="info">{{text}}</div>
-            </div>
-          {{/each}}
-        </div>
-      {{/if}}
-      {{#if html_attributions}}
-        <div class="section">
-          {{#each html_attributions}}
-            <p class="attribution">{{{this}}}</p>
-          {{/each}}
-        </div>
-      {{/if}}
-    </script>
-    <script src="script.js"></script>
-    <script>
-      const apiKey = 'API_KEY_PLACEHOLDER';
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap&libraries=places,geometry`;
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
-    </script>
-  </body>
+    </div>
+    <svg class="marker-pin" xmlns="http://www.w3.org/2000/svg" width="26" height="38" fill="none">
+      <path d="M13 0C5.817 0 0 5.93 0 13.267c0 7.862 5.59 10.81 9.555 17.624C12.09 35.248 11.342 38 13 38c1.723 0 .975-2.817 3.445-7.043C20.085 24.503 26 21.162 26 13.267 26 5.93 20.183 0 13 0Z"/>
+    </svg>
+  </div>
+  <script src="main.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&callback=initMap&libraries=places,geometry&solution_channel=GMP_QB_neighborhooddiscovery_v2_cADEF" async defer></script>
+</body>
 </html>
