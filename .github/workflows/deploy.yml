@@ -21,7 +21,7 @@ jobs:
       - name: Debug API Key
         run: echo "API Key is set"
         env:
-          GOOGLE_MAPS_API_KEY: ${{ secrets.my_google_map_api_key }}
+          GOOGLE_MAPS_API_KEY: ${{ secrets.MY_GOOGLE_MAP_API_KEY }}
 
       - name: Install dependencies
         run: npm install
@@ -29,7 +29,7 @@ jobs:
       - name: Build project
         run: npm run build
         env:
-          GOOGLE_MAPS_API_KEY: ${{ secrets.my_google_map_api_key }}
+          GOOGLE_MAPS_API_KEY: ${{ secrets.MY_GOOGLE_MAP_API_KEY }}
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
