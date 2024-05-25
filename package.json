@@ -1,5 +1,29 @@
 {
+  "name": "neighborhood-discovery",
+  "version": "1.0.0",
+  "description": "A project to discover neighborhoods using Google Maps.",
+  "main": "index.js",
   "scripts": {
-    "build": "sed -i 's/API_KEY_PLACEHOLDER/${GOOGLE_MAPS_API_KEY}/g' index.html && other-build-commands"
+    "build": "sed -i 's/API_KEY_PLACEHOLDER/$GOOGLE_MAPS_API_KEY/g' index.html && echo 'Build complete'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arashkhm2000/Philadelphia_Neighborhoods.git"
+  },
+  "author": "Your Name",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/arashkhm2000/Philadelphia_Neighborhoods/issues"
+  },
+  "homepage": "https://github.com/arashkhm2000/Philadelphia_Neighborhoods#readme",
+  "dependencies": {
+    "handlebars": "^4.7.7",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
