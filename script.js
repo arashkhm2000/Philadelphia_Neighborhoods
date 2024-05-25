@@ -492,7 +492,7 @@ function initMap() {
       minZoom: 3,
       mapId: "",
     },
-    mapsApiKey: MY_GOOGLE_MAP_API_KEY,
+    mapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
   };
 
   new NeighborhoodDiscovery(CONFIGURATION);
