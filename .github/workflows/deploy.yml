@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy
 
 on:
   push:
@@ -6,33 +6,20 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
+    - name: Inject API Key
+      run: |
+        sed -i 's/YOUR_API_KEY_HERE/${{ secrets.MY_GOOGLE_MAPS_API_KEY }}/g' index.html
+        sed -i 's/YOUR_API_KEY_HERE/${{ secrets.MY_GOOGLE_MAPS_API_KEY }}/g' main.js
 
-      - name: Debug API Key
-        run: echo "API Key is set"
-        env:
-          GOOGLE_MAPS_API_KEY: ${{ secrets.my_google_maps_API_key }}
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build project
-        run: npm run build
-        env:
-          GOOGLE_MAPS_API_KEY: ${{ secrets.my_google_maps_API_key }}
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./
