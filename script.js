@@ -478,6 +478,8 @@ function NeighborhoodDiscovery(configuration) {
 }
 
 function initMap() {
+  const apiKey = 'API_KEY_PLACEHOLDER';  // Replace this placeholder with actual key using a build process or environment variable during deployment
+
   const CONFIGURATION = {
     capabilities: { search: true, distances: false, directions: false, contacts: true, atmospheres: true, thumbnails: true },
     mapRadius: 1000,
@@ -492,11 +494,12 @@ function initMap() {
       minZoom: 3,
       mapId: "",
     },
-    mapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+    mapsApiKey: apiKey,
   };
 
   new NeighborhoodDiscovery(CONFIGURATION);
 }
+
 
 function addGoogleMapsScript(apiKey) {
   const script = document.createElement('script');
