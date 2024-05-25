@@ -31,6 +31,9 @@ jobs:
         env:
           GOOGLE_MAPS_API_KEY: ${{ secrets.my_google_maps_API_key }}
 
+      - name: List build directory for debugging
+        run: ls -la ./public  # Adjust this if your build output is in a different directory
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
